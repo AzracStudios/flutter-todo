@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:todo_app/pages/task/text_controller.dart';
-import 'package:todo_app/pages/task/validated_field.dart';
+import 'package:todo_app/shared/text_controller.dart';
+import 'package:todo_app/shared/validated_field.dart';
 import 'package:todo_app/shared/custom_text.dart';
 
 class AddTask extends StatefulWidget {
@@ -17,6 +17,8 @@ class _AddTaskState extends State<AddTask> {
 
   TextEditingController titleCtrl = TextEditingController();
   TextEditingController descCtrl = TextEditingController();
+
+  String formError = "";
 
   void selectDate() {
     showDatePicker(
@@ -78,7 +80,7 @@ class _AddTaskState extends State<AddTask> {
                   text: "Title",
                   size: 20,
                   weight: FontWeight.w600,
-                  color: Color.fromARGB(255, 24, 59, 109),
+                  color: const Color.fromARGB(255, 24, 59, 109),
                 ),
                 ValidatedField(min: 6, max: 30, ln: 1, ctrl: titleCtrl),
               ],
@@ -94,7 +96,7 @@ class _AddTaskState extends State<AddTask> {
                   text: "Date & Time",
                   size: 20,
                   weight: FontWeight.w600,
-                  color: Color.fromARGB(255, 24, 59, 109),
+                  color: const Color.fromARGB(255, 24, 59, 109),
                 ),
                 Card(
                   elevation: 0,
@@ -133,7 +135,7 @@ class _AddTaskState extends State<AddTask> {
                             text: "Start Time",
                             size: 20,
                             weight: FontWeight.w600,
-                            color: Color.fromARGB(255, 24, 59, 109),
+                            color: const Color.fromARGB(255, 24, 59, 109),
                           ),
                           SizedBox(
                             width: MediaQuery.of(context).size.width / 2 - 50,
@@ -175,7 +177,7 @@ class _AddTaskState extends State<AddTask> {
                             text: "End Time",
                             size: 20,
                             weight: FontWeight.w600,
-                            color: Color.fromARGB(255, 24, 59, 109),
+                            color: const Color.fromARGB(255, 24, 59, 109),
                           ),
                           SizedBox(
                             width: MediaQuery.of(context).size.width / 2 - 50,
@@ -223,24 +225,61 @@ class _AddTaskState extends State<AddTask> {
               text: "Description",
               size: 20,
               weight: FontWeight.w600,
-              color: Color.fromARGB(255, 24, 59, 109),
+              color: const Color.fromARGB(255, 24, 59, 109),
             ),
             ValidatedField(min: 0, max: 300, ln: 2, ctrl: descCtrl),
-            
+
             const SizedBox(height: 20),
-            
+
+            CustomText(
+                text: formError,
+                size: 13,
+                weight: FontWeight.w400,
+                color: Colors.redAccent),
+
+            const SizedBox(height: 20),
 
             // CREATE
             Center(
               child: ElevatedButton(
-                onPressed: () => {Navigator.of(context).pop()},
+                onPressed: () {
+                  // TITLE
+                  int titleCheck = TextController.validate(6, 30, titleCtrl);
+
+                  if (titleCheck >= 0) {
+                    formError =
+                        titleCheck == 0 ? "Title too short" : "Title too long";
+                    return setState(() {});
+                  }
+
+                  // DESCRIPTION
+                  int descCheck = TextController.validate(6, 30, titleCtrl);
+
+                  if (descCheck >= 0) {
+                    formError = "Description too long";
+                    return setState(() {});
+                  }
+
+                  // TIME
+                  int startTimeInt =
+                      (startTime.hour * 60 + startTime.minute) * 60;
+                  int endTimeInt = (endTime.hour * 60 + endTime.minute) * 60;
+                  if (startTimeInt >= endTimeInt) {
+                    formError =
+                        "Start time is the same or greater than end time";
+                    return setState(() {});
+                  }
+
+                  // TODO: Create the item
+                  Navigator.of(context).pop();
+                },
                 child: Padding(
-                  padding: EdgeInsets.fromLTRB(50.0, 10.0, 50.0, 10.0),
+                  padding: const EdgeInsets.fromLTRB(50.0, 10.0, 50.0, 10.0),
                   child: CustomText(
                     text: "Create",
                     size: 15,
                     weight: FontWeight.w400,
-                    color: Color.fromARGB(255, 238, 245, 255),
+                    color: const Color.fromARGB(255, 238, 245, 255),
                   ),
                 ),
               ),

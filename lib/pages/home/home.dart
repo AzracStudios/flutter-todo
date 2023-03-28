@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:todo_app/shared/progress.dart';
 
 import '../task/add_task.dart';
@@ -33,7 +32,7 @@ class Home extends StatelessWidget {
           text: "Home page",
           size: 20,
           weight: FontWeight.w600,
-          color: Color.fromARGB(255, 24, 59, 109),
+          color: const Color.fromARGB(255, 24, 59, 109),
         ),
         backgroundColor: Colors.white,
         elevation: 0.0,
@@ -77,7 +76,7 @@ class Home extends StatelessWidget {
             Progress(),
             SizedBox(height: 20),
             TaskCard(title: "UI Design", time: "9:00 AM - 12:50 PM"),
-            TaskCard(title: "UI Design", time: "9:00 AM - 12:50 PM")
+            TaskCard(title: "Web Development", time: "2:00 PM - 5:00 PM")
           ],
         ),
       ),
@@ -132,13 +131,13 @@ class TaskCard extends StatelessWidget {
                       text: title,
                       size: 16,
                       weight: FontWeight.w500,
-                      color: Color.fromARGB(255, 24, 59, 109),
+                      color: const Color.fromARGB(255, 24, 59, 109),
                     ),
                     subtitle: CustomText(
                       text: time,
                       size: 12,
                       weight: FontWeight.w400,
-                      color: Color.fromARGB(255, 118, 148, 190),
+                      color: const Color.fromARGB(255, 118, 148, 190),
                     ),
                     trailing: const Icon(Icons.arrow_forward_ios_rounded,
                         color: Color.fromARGB(255, 130, 197, 236)))

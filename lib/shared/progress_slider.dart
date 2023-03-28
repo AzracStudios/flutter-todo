@@ -26,8 +26,8 @@ class ProgressSlider extends StatelessWidget {
           child: LinearProgressIndicator(
             value: percentage / 100,
             backgroundColor: !dark
-                ? Color.fromARGB(122, 255, 255, 255)
-                : Color.fromARGB(36, 24, 59, 109),
+                ? const Color.fromARGB(122, 255, 255, 255)
+                : const Color.fromARGB(36, 24, 59, 109),
             color:
                 !dark ? Colors.white : const Color.fromARGB(255, 24, 59, 109),
             minHeight: 10,

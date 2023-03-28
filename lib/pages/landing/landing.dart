@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../shared/custom_text.dart';
 import '../home/home.dart';
@@ -30,7 +29,7 @@ class Landing extends StatelessWidget {
                 text: "Welcome to Go Task",
                 size: 25,
                 weight: FontWeight.w600,
-                color: Color.fromARGB(255, 35, 74, 133),
+                color: const Color.fromARGB(255, 35, 74, 133),
               ),
               Container(
                 padding: const EdgeInsets.fromLTRB(40.0, 8.0, 40.0, 0),
@@ -52,12 +51,12 @@ class Landing extends StatelessWidget {
                 MaterialPageRoute(builder: (context) => const Home()))
           },
           child: Padding(
-            padding: EdgeInsets.fromLTRB(30.0, 5.0, 30.0, 5.0),
+            padding: const EdgeInsets.fromLTRB(30.0, 5.0, 30.0, 5.0),
             child: CustomText(
               text: "Let's Start!",
               size: 15,
               weight: FontWeight.w400,
-              color: Color.fromARGB(255, 238, 245, 255),
+              color: const Color.fromARGB(255, 238, 245, 255),
             ),
           ),
         ),
