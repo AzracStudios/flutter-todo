@@ -29,7 +29,7 @@ class Home extends StatelessWidget {
             ),
           ),
         ],
-        title: const CustomText(
+        title: CustomText(
           text: "Home page",
           size: 20,
           weight: FontWeight.w600,

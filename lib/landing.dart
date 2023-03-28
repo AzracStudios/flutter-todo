@@ -27,7 +27,7 @@ class Landing extends StatelessWidget {
                 ),
                 Column(
                   children: [
-                    const CustomText(
+                    CustomText(
                       text: "Welcome to Go Task",
                       size: 25,
                       weight: FontWeight.w600,
@@ -36,13 +36,13 @@ class Landing extends StatelessWidget {
                     Center(
                       child: Container(
                         padding: const EdgeInsets.fromLTRB(40.0, 8.0, 40.0, 0),
-                        child: const CustomText(
-                          text:
-                              "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus congue sollicitudin dui",
-                          size: 10,
-                          weight: FontWeight.w600,
-                          color: Color.fromARGB(255, 35, 74, 133),
-                        ),
+                        child: CustomText(
+                            text:
+                                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus congue sollicitudin dui",
+                            size: 10,
+                            weight: FontWeight.w600,
+                            color: const Color.fromARGB(255, 35, 74, 133),
+                            center: true),
                       ),
                     ),
                   ],
@@ -53,7 +53,7 @@ class Landing extends StatelessWidget {
                     Navigator.of(context).pushReplacement(
                         MaterialPageRoute(builder: (context) => const Home()))
                   },
-                  child: const Padding(
+                  child: Padding(
                     padding: EdgeInsets.fromLTRB(30.0, 5.0, 30.0, 5.0),
                     child: CustomText(
                       text: "Let's Start!",

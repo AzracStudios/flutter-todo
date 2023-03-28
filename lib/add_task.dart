@@ -59,7 +59,7 @@ class _AddTaskState extends State<AddTask> {
               color: Color.fromARGB(255, 24, 59, 109)),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const CustomText(
+        title: CustomText(
           text: "Add Task",
           size: 20,
           weight: FontWeight.w600,
@@ -75,14 +75,14 @@ class _AddTaskState extends State<AddTask> {
             // TITLE
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 CustomText(
                   text: "Title",
                   size: 20,
                   weight: FontWeight.w600,
                   color: Color.fromARGB(255, 24, 59, 109),
                 ),
-                TextField(
+                const TextField(
                     maxLength: 30,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
@@ -99,7 +99,7 @@ class _AddTaskState extends State<AddTask> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const CustomText(
+                CustomText(
                   text: "Date & Time",
                   size: 20,
                   weight: FontWeight.w600,
@@ -138,7 +138,7 @@ class _AddTaskState extends State<AddTask> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const CustomText(
+                          CustomText(
                             text: "Start Time",
                             size: 20,
                             weight: FontWeight.w600,
@@ -180,7 +180,7 @@ class _AddTaskState extends State<AddTask> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const CustomText(
+                          CustomText(
                             text: "End Time",
                             size: 20,
                             weight: FontWeight.w600,
@@ -230,14 +230,14 @@ class _AddTaskState extends State<AddTask> {
             // DESCRIPTION
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 CustomText(
                   text: "Description",
                   size: 20,
                   weight: FontWeight.w600,
                   color: Color.fromARGB(255, 24, 59, 109),
                 ),
-                TextField(
+                const TextField(
                   maxLength: 300,
                   maxLines: 2,
                   decoration: InputDecoration(
@@ -253,7 +253,7 @@ class _AddTaskState extends State<AddTask> {
             ElevatedButton(
               //TODO: IMPL SUBMIT
               onPressed: () => {Navigator.of(context).pop()},
-              child: const Padding(
+              child: Padding(
                 padding: EdgeInsets.fromLTRB(50.0, 10.0, 50.0, 10.0),
                 child: CustomText(
                   text: "Create",

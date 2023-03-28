@@ -28,7 +28,7 @@ class Progress extends StatelessWidget {
           padding: const EdgeInsets.all(25),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
+            children: [
               CustomText(
                 text: "Today's Progress Summary",
                 size: 15,
@@ -41,8 +41,8 @@ class Progress extends StatelessWidget {
                 weight: FontWeight.w300,
                 color: Colors.white,
               ),
-              SizedBox(height: 20),
-              ProgressSlider(percentage: 20.0, dark: false),
+              const SizedBox(height: 20),
+              const ProgressSlider(percentage: 20.0, dark: false),
             ],
           ),
         ),
