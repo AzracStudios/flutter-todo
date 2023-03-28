@@ -38,6 +38,37 @@ class Home extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0.0,
       ),
+      bottomNavigationBar: BottomNavigationBar(
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
+        elevation: 0,
+        items: const [
+          BottomNavigationBarItem(
+              icon: Icon(
+                Icons.home_filled,
+                color: Colors.black38,
+              ),
+              label: "Home"),
+          BottomNavigationBarItem(
+              icon: Icon(
+                Icons.calendar_month_rounded,
+                color: Colors.black38,
+              ),
+              label: ""),
+          BottomNavigationBarItem(
+              icon: Icon(
+                Icons.chat_bubble_rounded,
+                color: Colors.black38,
+              ),
+              label: ""),
+          BottomNavigationBarItem(
+              icon: Icon(
+                Icons.person,
+                color: Colors.black38,
+              ),
+              label: "")
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(25.0),
         child: ListView(
