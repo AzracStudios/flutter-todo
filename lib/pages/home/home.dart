@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:todo_app/progress.dart';
+import 'package:todo_app/shared/progress.dart';
 
-import 'add_task.dart';
-import 'custom_text.dart';
+import '../task/add_task.dart';
+import '../../shared/custom_text.dart';
 
 class Home extends StatelessWidget {
   const Home({super.key});
@@ -67,7 +67,7 @@ class Home extends StatelessWidget {
                 color: Colors.black38,
               ),
               label: "")
-        ],
+        ],  
       ),
       body: Padding(
         padding: const EdgeInsets.all(25.0),

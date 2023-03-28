@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:todo_app/custom_text.dart';
+import 'package:todo_app/shared/custom_text.dart';
 
 class ProgressSlider extends StatelessWidget {
   const ProgressSlider(

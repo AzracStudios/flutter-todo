@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:todo_app/custom_text.dart';
+import 'package:todo_app/pages/task/text_controller.dart';
+import 'package:todo_app/pages/task/validated_field.dart';
+import 'package:todo_app/shared/custom_text.dart';
 
 class AddTask extends StatefulWidget {
   const AddTask({super.key});
@@ -14,43 +15,39 @@ class _AddTaskState extends State<AddTask> {
   TimeOfDay startTime = TimeOfDay.now();
   TimeOfDay endTime = TimeOfDay.now();
 
+  TextEditingController titleCtrl = TextEditingController();
+  TextEditingController descCtrl = TextEditingController();
+
+  void selectDate() {
+    showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(2015, 8),
+      lastDate: DateTime(2101),
+    ).then((value) {
+      setState(() {
+        selectedDate = value!;
+      });
+    });
+  }
+
+  void selectTime(bool isStart) {
+    showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    ).then((value) {
+      setState(() {
+        if (isStart) {
+          startTime = value!;
+        } else {
+          endTime = value!;
+        }
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    void selectDate() {
-      showDatePicker(
-        context: context,
-        initialDate: selectedDate,
-        firstDate: DateTime(2015, 8),
-        lastDate: DateTime(2101),
-      ).then((value) {
-        setState(() {
-          selectedDate = value!;
-        });
-      });
-    }
-
-    void setStartTime() {
-      showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.now(),
-      ).then((value) {
-        setState(() {
-          startTime = value!;
-        });
-      });
-    }
-
-    void setEndTime() {
-      showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.now(),
-      ).then((value) {
-        setState(() {
-          endTime = value!;
-        });
-      });
-    }
-
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -63,7 +60,7 @@ class _AddTaskState extends State<AddTask> {
           text: "Add Task",
           size: 20,
           weight: FontWeight.w600,
-          color: Color.fromARGB(255, 24, 59, 109),
+          color: const Color.fromARGB(255, 24, 59, 109),
         ),
         backgroundColor: Colors.white,
         elevation: 0.0,
@@ -71,6 +68,7 @@ class _AddTaskState extends State<AddTask> {
       body: Padding(
         padding: const EdgeInsets.all(25.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // TITLE
             Column(
@@ -82,14 +80,7 @@ class _AddTaskState extends State<AddTask> {
                   weight: FontWeight.w600,
                   color: Color.fromARGB(255, 24, 59, 109),
                 ),
-                const TextField(
-                    maxLength: 30,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10))),
-                      labelText: '',
-                    ),
-                    style: TextStyle(color: Color.fromARGB(255, 24, 59, 109))),
+                ValidatedField(min: 6, max: 30, ln: 1, ctrl: titleCtrl),
               ],
             ),
 
@@ -161,7 +152,7 @@ class _AddTaskState extends State<AddTask> {
                                 child: ListTile(
                                   hoverColor: Colors.white,
                                   focusColor: Colors.white,
-                                  onTap: () => setStartTime(),
+                                  onTap: () => selectTime(true),
                                   title: CustomText(
                                     text: startTime.format(context).toString(),
                                     size: 15,
@@ -203,7 +194,7 @@ class _AddTaskState extends State<AddTask> {
                                 child: ListTile(
                                   hoverColor: Colors.white,
                                   focusColor: Colors.white,
-                                  onTap: () => setEndTime(),
+                                  onTap: () => selectTime(false),
                                   title: CustomText(
                                     text: endTime.format(context).toString(),
                                     size: 15,
@@ -228,38 +219,29 @@ class _AddTaskState extends State<AddTask> {
             const SizedBox(height: 20),
 
             // DESCRIPTION
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CustomText(
-                  text: "Description",
-                  size: 20,
-                  weight: FontWeight.w600,
-                  color: Color.fromARGB(255, 24, 59, 109),
-                ),
-                const TextField(
-                  maxLength: 300,
-                  maxLines: 2,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10))),
-                    labelText: '',
-                  ),
-                  style: TextStyle(color: Color.fromARGB(255, 24, 59, 109)),
-                ),
-              ],
+            CustomText(
+              text: "Description",
+              size: 20,
+              weight: FontWeight.w600,
+              color: Color.fromARGB(255, 24, 59, 109),
             ),
+            ValidatedField(min: 0, max: 300, ln: 2, ctrl: descCtrl),
+            
+            const SizedBox(height: 20),
+            
 
-            ElevatedButton(
-              //TODO: IMPL SUBMIT
-              onPressed: () => {Navigator.of(context).pop()},
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(50.0, 10.0, 50.0, 10.0),
-                child: CustomText(
-                  text: "Create",
-                  size: 15,
-                  weight: FontWeight.w400,
-                  color: Color.fromARGB(255, 238, 245, 255),
+            // CREATE
+            Center(
+              child: ElevatedButton(
+                onPressed: () => {Navigator.of(context).pop()},
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(50.0, 10.0, 50.0, 10.0),
+                  child: CustomText(
+                    text: "Create",
+                    size: 15,
+                    weight: FontWeight.w400,
+                    color: Color.fromARGB(255, 238, 245, 255),
+                  ),
                 ),
               ),
             )

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:todo_app/progress_slider.dart';
-import 'package:todo_app/task_details.dart';
+import 'package:todo_app/shared/progress_slider.dart';
+import 'package:todo_app/pages/task/task_details.dart';
 import 'custom_text.dart';
-import 'landing.dart';
 
 class Progress extends StatelessWidget {
   const Progress({super.key});

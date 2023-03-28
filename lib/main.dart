@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'landing.dart';
+import 'pages/landing/landing.dart';
 
 void main() {
   runApp(const TodoApp());
