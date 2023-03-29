@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:todo_app/shared/text_controller.dart';
 import 'package:todo_app/shared/validated_field.dart';
 import 'package:todo_app/shared/custom_text.dart';
 
@@ -52,6 +51,41 @@ class _AddTaskState extends State<AddTask> {
     });
   }
 
+  String? titleError;
+  String? descError;
+
+  bool titleValidate(val) {
+    String? buff;
+
+    if (val.length < 6) {
+      titleError = 'Input needs atleast 6 characters';
+      return true;
+    }
+
+    if (val.length > 30) {
+      titleError = 'Input should be no longer than 30 characters';
+      return true;
+    }
+
+    titleError = null;
+
+    if (titleError == buff) setState(() {});
+    return false;
+  }
+
+  bool descValidate(val) {
+    String? buff;
+
+    if (val.length > 300) {
+      descError = 'Input should be no longer than 300 characters';
+      return true;
+    }
+
+    descError = null;
+    if (descError == buff) setState(() {});
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -86,7 +120,14 @@ class _AddTaskState extends State<AddTask> {
                   weight: FontWeight.w600,
                   color: const Color.fromARGB(255, 24, 59, 109),
                 ),
-                ValidatedField(min: 6, max: 30, ln: 1, ctrl: titleCtrl),
+                ValidatedField(
+                    ln: 1,
+                    ctrl: titleCtrl,
+                    onValueChange: (val) {
+                      bool err = titleValidate(val);
+                      if (err) setState(() {});
+                    },
+                    error: titleError),
               ],
             ),
 
@@ -245,7 +286,15 @@ class _AddTaskState extends State<AddTask> {
               weight: FontWeight.w600,
               color: const Color.fromARGB(255, 24, 59, 109),
             ),
-            ValidatedField(min: -1, max: 300, ln: 2, ctrl: descCtrl),
+            ValidatedField(
+              ln: 2,
+              ctrl: descCtrl,
+              onValueChange: (val) {
+                bool err = descValidate(val);
+                if (err) setState(() {});
+              },
+              error: descError,
+            ),
 
             const SizedBox(height: 20),
 
@@ -254,12 +303,12 @@ class _AddTaskState extends State<AddTask> {
               child: ElevatedButton(
                 onPressed: () {
                   // TITLE
-                  int titleCheck = TextController.validate(6, 30, titleCtrl);
-                  if (titleCheck >= 0) return;
+                  bool titleErr = titleValidate(titleCtrl.text);
+                  if (titleErr) return setState(() {});
 
                   // DESCRIPTION
-                  int descCheck = TextController.validate(0, 300, titleCtrl);
-                  if (descCheck >= 0) return;
+                  bool descErr = titleValidate(descCtrl.text);
+                  if (descErr) return setState(() {});
 
                   // TIME
                   int startTimeInt =
