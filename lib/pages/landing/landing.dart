@@ -41,8 +41,7 @@ class Landing extends StatelessWidget {
                     color: const Color.fromARGB(255, 35, 74, 133),
                     center: true),
               ),
-              
-              const SizedBox(height: 20.0),
+              const SizedBox(height: 10.0),
               ElevatedButton(
                 onPressed: () => {
                   Navigator.of(context).pushReplacement(
