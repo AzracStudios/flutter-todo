@@ -20,7 +20,7 @@ class Landing extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         const Gradient(),
-        Flexible(
+        Expanded(
           flex: 1,
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -41,23 +41,24 @@ class Landing extends StatelessWidget {
                     color: const Color.fromARGB(255, 35, 74, 133),
                     center: true),
               ),
+              
+              const SizedBox(height: 20.0),
+              ElevatedButton(
+                onPressed: () => {
+                  Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (context) => const Home()))
+                },
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(30.0, 5.0, 30.0, 5.0),
+                  child: CustomText(
+                    text: "Let's Start!",
+                    size: 15,
+                    weight: FontWeight.w400,
+                    color: const Color.fromARGB(255, 238, 245, 255),
+                  ),
+                ),
+              ),
             ],
-          ),
-        ),
-        const SizedBox(height: 20.0),
-        ElevatedButton(
-          onPressed: () => {
-            Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (context) => const Home()))
-          },
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(30.0, 5.0, 30.0, 5.0),
-            child: CustomText(
-              text: "Let's Start!",
-              size: 15,
-              weight: FontWeight.w400,
-              color: const Color.fromARGB(255, 238, 245, 255),
-            ),
           ),
         ),
       ],
@@ -70,21 +71,20 @@ class Gradient extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      child: Expanded(
+    return Expanded(
+      flex: 2,
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+              colors: Styles.gradientColors,
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter),
+        ),
         child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-                colors: Styles.gradientColors,
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter),
-          ),
-          child: Container(
-            alignment: Alignment.center,
-            child: Image.asset(
-              "assets/landing.png",
-              scale: 2.5,
-            ),
+          alignment: Alignment.center,
+          child: Image.asset(
+            "assets/landing.png",
+            scale: 2.5,
           ),
         ),
       ),

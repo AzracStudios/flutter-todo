@@ -18,6 +18,8 @@ class _AddTaskState extends State<AddTask> {
   TextEditingController titleCtrl = TextEditingController();
   TextEditingController descCtrl = TextEditingController();
 
+  bool timeError = false;
+
   String formError = "";
 
   void selectDate() {
@@ -34,6 +36,8 @@ class _AddTaskState extends State<AddTask> {
   }
 
   void selectTime(bool isStart) {
+    timeError = false;
+
     showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
@@ -141,12 +145,14 @@ class _AddTaskState extends State<AddTask> {
                             width: MediaQuery.of(context).size.width / 2 - 50,
                             child: Card(
                               elevation: 0,
-                              shape: const RoundedRectangleBorder(
+                              shape: RoundedRectangleBorder(
                                 side: BorderSide(
-                                  color: Color.fromARGB(255, 164, 164, 164),
+                                  color: !timeError
+                                      ? const Color.fromARGB(255, 164, 164, 164)
+                                      : Colors.red,
                                 ),
                                 borderRadius:
-                                    BorderRadius.all(Radius.circular(12)),
+                                    const BorderRadius.all(Radius.circular(12)),
                               ),
                               clipBehavior: Clip.hardEdge,
                               child: Padding(
@@ -167,6 +173,12 @@ class _AddTaskState extends State<AddTask> {
                                 ),
                               ),
                             ),
+                          ),
+                          CustomText(
+                            text: timeError ? "Invalid start time" : "",
+                            size: 12,
+                            weight: FontWeight.w500,
+                            color: Colors.red,
                           ),
                         ],
                       ),
@@ -210,6 +222,12 @@ class _AddTaskState extends State<AddTask> {
                               ),
                             ),
                           ),
+                          CustomText(
+                            text: "",
+                            size: 12,
+                            weight: FontWeight.w500,
+                            color: Colors.red,
+                          ),
                         ],
                       ),
                     ],
@@ -218,7 +236,7 @@ class _AddTaskState extends State<AddTask> {
               ],
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
 
             // DESCRIPTION
             CustomText(
@@ -227,15 +245,7 @@ class _AddTaskState extends State<AddTask> {
               weight: FontWeight.w600,
               color: const Color.fromARGB(255, 24, 59, 109),
             ),
-            ValidatedField(min: 0, max: 300, ln: 2, ctrl: descCtrl),
-
-            const SizedBox(height: 20),
-
-            CustomText(
-                text: formError,
-                size: 13,
-                weight: FontWeight.w400,
-                color: Colors.redAccent),
+            ValidatedField(min: -1, max: 300, ln: 2, ctrl: descCtrl),
 
             const SizedBox(height: 20),
 
@@ -245,32 +255,21 @@ class _AddTaskState extends State<AddTask> {
                 onPressed: () {
                   // TITLE
                   int titleCheck = TextController.validate(6, 30, titleCtrl);
-
-                  if (titleCheck >= 0) {
-                    formError =
-                        titleCheck == 0 ? "Title too short" : "Title too long";
-                    return setState(() {});
-                  }
+                  if (titleCheck >= 0) return;
 
                   // DESCRIPTION
-                  int descCheck = TextController.validate(6, 30, titleCtrl);
-
-                  if (descCheck >= 0) {
-                    formError = "Description too long";
-                    return setState(() {});
-                  }
+                  int descCheck = TextController.validate(0, 300, titleCtrl);
+                  if (descCheck >= 0) return;
 
                   // TIME
                   int startTimeInt =
                       (startTime.hour * 60 + startTime.minute) * 60;
                   int endTimeInt = (endTime.hour * 60 + endTime.minute) * 60;
                   if (startTimeInt >= endTimeInt) {
-                    formError =
-                        "Start time is the same or greater than end time";
+                    timeError = true;
                     return setState(() {});
                   }
 
-                  // TODO: Create the item
                   Navigator.of(context).pop();
                 },
                 child: Padding(
