@@ -40,7 +40,7 @@ class Progress extends StatelessWidget {
                 weight: FontWeight.w300,
                 color: Colors.white,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
               const ProgressSlider(percentage: 20.0, dark: false),
             ],
           ),

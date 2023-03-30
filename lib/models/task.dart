@@ -1,5 +1,5 @@
 class Task {
-  late int _id;
+  int? _id;
   String _title;
   String _description;
   String date;
@@ -10,7 +10,7 @@ class Task {
   Task.withId(this._id, this._title, this._description, this.date,
       this.startTime, this.endTime);
 
-  int get id => _id;
+  int? get id => _id;
   String get title => _title;
   String get description => _description;
 

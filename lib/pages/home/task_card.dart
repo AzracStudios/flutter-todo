@@ -1,17 +1,23 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
 
+import 'package:flutter/material.dart';
+import 'package:todo_app/utils/database_helper.dart';
+import 'package:todo_app/utils/type_conv_helper.dart';
+
+import '../../models/task.dart';
 import '../../shared/custom_text.dart';
+import '../../utils/navigation_helper.dart';
 
 class TaskCard extends StatelessWidget {
   const TaskCard(
       {super.key,
-      required this.title,
-      required this.time,
-      required this.index});
+      required this.task,
+      required this.databaseHelper,
+      required this.updateTaskList});
 
-  final String title;
-  final String time;
-  final int index;
+  final Task task;
+  final DatabaseHelper databaseHelper;
+  final StreamController updateTaskList;
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +40,8 @@ class TaskCard extends StatelessWidget {
           clipBehavior: Clip.hardEdge,
           child: InkWell(
             splashColor: const Color.fromARGB(255, 30, 94, 146).withAlpha(30),
-            // TODO: IMPL ON TAP NAV TO UPDATE
+            onTap: () => navigateToTaskPage(
+                task, context, databaseHelper, updateTaskList),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -44,13 +51,13 @@ class TaskCard extends StatelessWidget {
                       color: Color.fromARGB(255, 130, 197, 236),
                     ),
                     title: CustomText(
-                      text: title,
+                      text: task.title,
                       size: 16,
                       weight: FontWeight.w500,
                       color: const Color.fromARGB(255, 24, 59, 109),
                     ),
                     subtitle: CustomText(
-                      text: time,
+                      text: '${task.startTime} - ${task.endTime}',
                       size: 12,
                       weight: FontWeight.w400,
                       color: const Color.fromARGB(255, 118, 148, 190),

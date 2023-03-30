@@ -16,12 +16,14 @@ class TaskDetails extends StatefulWidget {
       required this.task,
       required this.appBarTitle,
       required this.actionTitle,
-      required this.databaseHelper});
+      required this.databaseHelper,
+      required this.updateTaskList});
 
   final Task task;
   final String appBarTitle;
   final String actionTitle;
   final DatabaseHelper databaseHelper;
+  final StreamController updateTaskList;
 
   @override
   State<TaskDetails> createState() => _TaskDetailsState();
@@ -255,8 +257,8 @@ class _TaskDetailsState extends State<TaskDetails> {
                           timeOfDayToString(startTime, context);
                       widget.task.endTime = timeOfDayToString(endTime, context);
 
-                      handleAction(); 
-
+                      handleAction();
+                      widget.updateTaskList.add(true);
                       Navigator.of(context).pop();
                     }
                   },
