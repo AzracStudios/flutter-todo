@@ -10,8 +10,8 @@ class ValidatedField extends StatefulWidget {
 
   final TextEditingController ctrl;
   final int ln;
-  
-  final Function (String) onValueChange;
+
+  final Function(String) onValueChange;
   final String? error;
 
   @override
@@ -19,14 +19,8 @@ class ValidatedField extends StatefulWidget {
 }
 
 class _ValidatedFieldState extends State<ValidatedField> {
-
-
   @override
   Widget build(BuildContext context) {
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   checkError();
-    // });
-
     return TextField(
       controller: widget.ctrl,
       onChanged: (val) => widget.onValueChange(val),

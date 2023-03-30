@@ -1,11 +1,38 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:sqflite/sqlite_api.dart';
+import 'package:todo_app/models/task.dart';
+import 'package:todo_app/pages/home/task_card.dart';
 import 'package:todo_app/shared/progress.dart';
+import 'package:todo_app/utils/database_helper.dart';
 
-import '../task/add_task.dart';
 import '../../shared/custom_text.dart';
+import '../../utils/navigation_helper.dart';
 
-class Home extends StatelessWidget {
+class Home extends StatefulWidget {
   const Home({super.key});
+
+  @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+  StreamController<List<Task>?> taskStream = StreamController();
+
+  DatabaseHelper databaseHelper = DatabaseHelper();
+
+  List<Task> tasks = [];
+
+  void updateTasks() {
+    final Future<Database> dbFuture = databaseHelper.initializeDatabase();
+    dbFuture.then((db) {
+      Future<List<Task>> taskListFuture = databaseHelper.getTaskList();
+      taskListFuture.then((taskList) {
+        taskStream.add(taskList);
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,86 +93,51 @@ class Home extends StatelessWidget {
                 color: Colors.black38,
               ),
               label: "")
-        ],  
+        ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(25.0),
-        child: ListView(
-          scrollDirection: Axis.vertical,
-          children: const [
-            Progress(),
-            SizedBox(height: 20),
-            TaskCard(title: "UI Design", time: "9:00 AM - 12:50 PM"),
-            TaskCard(title: "Web Development", time: "2:00 PM - 5:00 PM")
-          ],
-        ),
-      ),
+      body: StreamBuilder<List<Task>?>(
+          stream: taskStream.stream,
+          builder: (context, snapshot) {
+            List<TaskCard> taskCards = [];
+
+            if (snapshot.hasData) {
+              for (var i = 0; i < snapshot.data!.length; i++) {
+                Task task = snapshot.data![i];
+
+                taskCards.add(TaskCard(
+                    index: i,
+                    title: task.title,
+                    time: '${task.startTime} - ${task.endTime}'));
+              }
+            }
+
+            return Padding(
+              padding: const EdgeInsets.all(25.0),
+              child: ListView(
+                scrollDirection: Axis.vertical,
+                children: [
+                  const Progress(),
+                  const SizedBox(height: 20),
+                  taskCards.isEmpty
+                      ? CustomText(
+                          text: "No Tasks!",
+                          size: 25,
+                          weight: FontWeight.bold,
+                          color: const Color.fromARGB(255, 24, 59, 109),
+                          center: true,
+                        )
+                      : const SizedBox(height: 1),
+                  ...taskCards
+                ],
+              ),
+            );
+          }),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => {
-          Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => const AddTask()))
-        },
+        onPressed: () => navigateToTaskPage(
+            Task('', '', '', '', ''), context, databaseHelper),
         child: const Icon(Icons.add),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-    );
-  }
-}
-
-class TaskCard extends StatelessWidget {
-  const TaskCard({super.key, required this.title, required this.time});
-  final String title;
-  final String time;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        decoration: const BoxDecoration(boxShadow: [
-          BoxShadow(
-              color: Color.fromARGB(19, 166, 167, 177),
-              blurRadius: 5.0,
-              offset: Offset(0.0, 5.0))
-        ]),
-        child: Card(
-          elevation: 0,
-          shape: const RoundedRectangleBorder(
-            side: BorderSide(
-              color: Color.fromARGB(255, 223, 226, 243),
-            ),
-            borderRadius: BorderRadius.all(Radius.circular(12)),
-          ),
-          clipBehavior: Clip.hardEdge,
-          child: InkWell(
-            splashColor: const Color.fromARGB(255, 30, 94, 146).withAlpha(30),
-            onTap: () {},
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ListTile(
-                    leading: const Icon(
-                      Icons.local_activity,
-                      color: Color.fromARGB(255, 130, 197, 236),
-                    ),
-                    title: CustomText(
-                      text: title,
-                      size: 16,
-                      weight: FontWeight.w500,
-                      color: const Color.fromARGB(255, 24, 59, 109),
-                    ),
-                    subtitle: CustomText(
-                      text: time,
-                      size: 12,
-                      weight: FontWeight.w400,
-                      color: const Color.fromARGB(255, 118, 148, 190),
-                    ),
-                    trailing: const Icon(Icons.arrow_forward_ios_rounded,
-                        color: Color.fromARGB(255, 130, 197, 236)))
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:todo_app/shared/progress_slider.dart';
-import 'package:todo_app/pages/task/task_details.dart';
+import 'package:todo_app/pages/task/task_summary.dart';
 import 'custom_text.dart';
 
 class Progress extends StatelessWidget {
@@ -13,7 +13,7 @@ class Progress extends StatelessWidget {
       child: InkWell(
         onTap: () {
           Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => const TaskDetails()));
+              MaterialPageRoute(builder: (context) => const TaskSummary()));
         },
         child: Container(
           height: 150,
