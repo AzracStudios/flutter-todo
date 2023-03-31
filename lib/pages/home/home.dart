@@ -124,7 +124,7 @@ class _HomeState extends State<Home> {
 
                   return Padding(
                     padding: const EdgeInsets.all(25.0),
-                    child: ListView(
+                    child: ListView(  
                       scrollDirection: Axis.vertical,
                       children: [
                         const Progress(),

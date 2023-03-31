@@ -89,7 +89,7 @@ class _TaskDetailsState extends State<TaskDetails> {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             task = widget.id != null
-                ? snapshot.data![widget.id! - 1]
+                ? snapshot.data![widget.id!]
                 : Task(null, '', '', '', '', '');
 
             titleCtrl.text = task!.title;
@@ -107,7 +107,7 @@ class _TaskDetailsState extends State<TaskDetails> {
             return Scaffold(
               appBar: AppBar(
                 centerTitle: true,
-                leading: IconButton(
+                leading: IconButton(  
                   icon: const Icon(Icons.arrow_back_ios_rounded,
                       color: Color.fromARGB(255, 24, 59, 109)),
                   onPressed: () => Navigator.of(context).pop(),
