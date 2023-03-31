@@ -37,6 +37,7 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) => updateTasks());
     return StreamBuilder<bool>(
         stream: updateTaskList.stream,
         builder: (context, snapshot) {
@@ -113,8 +114,9 @@ class _HomeState extends State<Home> {
                       Task task = snapshot.data![i];
 
                       taskCards.add(TaskCard(
-                        task: task,
-                        databaseHelper: databaseHelper,
+                        taskId: i,
+                        taskTitle: task.title,
+                        taskTime: '${task.startTime} - ${task.endTime}',
                         updateTaskList: updateTaskList,
                       ));
                     }
@@ -142,8 +144,8 @@ class _HomeState extends State<Home> {
                   );
                 }),
             floatingActionButton: FloatingActionButton(
-              onPressed: () => navigateToTaskPage(Task('', '', '', '', ''),
-                  context, databaseHelper, updateTaskList),
+              onPressed: () =>
+                  navigateToTaskPage(null, context, updateTaskList),
               child: const Icon(Icons.add),
             ),
             floatingActionButtonLocation:

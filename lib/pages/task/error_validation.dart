@@ -26,6 +26,7 @@ bool descValidate(val, errorStream) {
 bool timeValidate(errorStream, startTime, endTime) {
   int startTimeInt = (startTime.hour * 60 + startTime.minute) * 60;
   int endTimeInt = (endTime.hour * 60 + endTime.minute) * 60;
+
   if (startTimeInt >= endTimeInt) {
     errorStream.add("Invalid start time");
     return true;

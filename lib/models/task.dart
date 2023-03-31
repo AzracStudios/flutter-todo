@@ -1,14 +1,13 @@
 class Task {
-  int? _id;
+  final int? _id;
   String _title;
   String _description;
   String date;
   String startTime;
   String endTime;
 
-  Task(this._title, this._description, this.date, this.startTime, this.endTime);
-  Task.withId(this._id, this._title, this._description, this.date,
-      this.startTime, this.endTime);
+  Task(this._id, this._title, this._description, this.date, this.startTime,
+      this.endTime);
 
   int? get id => _id;
   String get title => _title;
@@ -34,7 +33,7 @@ class Task {
   }
 
   static Task fromMapObject(Map<String, dynamic> map) {
-    return Task.withId(map["id"], map["title"], map["description"], map["date"],
+    return Task(map["id"], map["title"], map["description"], map["date"],
         map["start_time"], map["end_time"]);
   }
 }
