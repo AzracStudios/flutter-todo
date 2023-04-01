@@ -39,7 +39,7 @@ class _TaskDetailsState extends State<TaskDetails> {
   String actionTitle = '';
   String appBarTitle = '';
 
-  Task? task;
+  Task task = Task(null, '', '', '', '', '');
 
   void selectDate() {
     showDatePicker(
@@ -69,17 +69,29 @@ class _TaskDetailsState extends State<TaskDetails> {
     });
   }
 
-  void handleAction() {
-    final Future<Database> dbFuture = databaseHelper.initializeDatabase();
-    dbFuture.then((db) {
-      if (actionTitle == "Update") {
-        Future<int> update = databaseHelper.updateTask(task!);
-        return update;
-      }
+  void handleUpdateOrCreate() {
+    bool titleErr = titleValidate(titleCtrl.text, titleErrorStream);
+    bool descErr = descValidate(descCtrl.text, descErrorStream);
+    bool timeErr = timeValidate(timeErrorStream, startTime, endTime);
 
-      Future<int> add = databaseHelper.insertTask(task!);
-      return add;
-    });
+    if (!(titleErr || descErr || timeErr)) {
+      task.title = titleCtrl.text;
+      task.description = descCtrl.text;
+      task.date = dateTimeToString(selectedDate);
+      task.startTime = timeOfDayToString(startTime, context);
+      task.endTime = timeOfDayToString(endTime, context);
+
+      final Future<Database> dbFuture = databaseHelper.initializeDatabase();
+      dbFuture.then((db) {
+        Future<int> addOrUpdate = actionTitle == "Update"
+            ? databaseHelper.updateTask(task)
+            : databaseHelper.insertTask(task);
+        return addOrUpdate;
+      });
+
+      widget.updateTaskList.add(true);
+      Navigator.of(context).pop();
+    }
   }
 
   @override
@@ -88,15 +100,16 @@ class _TaskDetailsState extends State<TaskDetails> {
         future: databaseHelper.getTaskList(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            task = widget.id != null
-                ? snapshot.data![widget.id!]
-                : Task(null, '', '', '', '', '');
+            if (widget.id != null) {
+              task = snapshot.data![widget
+                  .id!]; // List<Task> => IDX: 0, 1, 2....  ID: 1, 2, 4, 5....
+            }
 
-            titleCtrl.text = task!.title;
-            descCtrl.text = task!.description;
-            selectedDate = stringToDateTime(task!.date);
-            startTime = stringToTimeOfDay(task!.startTime);
-            endTime = stringToTimeOfDay(task!.endTime);
+            titleCtrl.text = task.title;
+            descCtrl.text = task.description;
+            selectedDate = stringToDateTime(task.date);
+            startTime = stringToTimeOfDay(task.startTime);
+            endTime = stringToTimeOfDay(task.endTime);
             if (startTime == endTime) {
               endTime =
                   TimeOfDay(hour: startTime.hour + 1, minute: startTime.minute);
@@ -107,7 +120,7 @@ class _TaskDetailsState extends State<TaskDetails> {
             return Scaffold(
               appBar: AppBar(
                 centerTitle: true,
-                leading: IconButton(  
+                leading: IconButton(
                   icon: const Icon(Icons.arrow_back_ios_rounded,
                       color: Color.fromARGB(255, 24, 59, 109)),
                   onPressed: () => Navigator.of(context).pop(),
@@ -140,7 +153,7 @@ class _TaskDetailsState extends State<TaskDetails> {
                           StreamBuilder<String?>(
                               stream: titleErrorStream.stream,
                               builder: (context, snapshot) {
-                                String? data =
+                                String? error =
                                     snapshot.hasData ? snapshot.data : null;
 
                                 return ValidatedField(
@@ -148,7 +161,7 @@ class _TaskDetailsState extends State<TaskDetails> {
                                   ctrl: titleCtrl,
                                   onValueChange: (val) =>
                                       titleValidate(val, titleErrorStream),
-                                  error: data,
+                                  error: error,
                                 );
                               }),
                         ],
@@ -196,9 +209,7 @@ class _TaskDetailsState extends State<TaskDetails> {
                           StreamBuilder<String?>(
                               stream: timeErrorStream.stream,
                               builder: (context, snapshot) {
-                                bool timeError = snapshot.hasData
-                                    ? snapshot.data != null
-                                    : false;
+                                bool timeError = snapshot.data != null;
 
                                 return Padding(
                                   padding:
@@ -237,8 +248,7 @@ class _TaskDetailsState extends State<TaskDetails> {
                       StreamBuilder<String?>(
                           stream: descErrorStream.stream,
                           builder: (context, snapshot) {
-                            String? data =
-                                snapshot.hasData ? snapshot.data : null;
+                            String? data = snapshot.data;
 
                             return ValidatedField(
                               ln: 2,
@@ -256,28 +266,7 @@ class _TaskDetailsState extends State<TaskDetails> {
                       // CREATE
                       Center(
                         child: ElevatedButton(
-                          onPressed: () {
-                            bool titleErr =
-                                titleValidate(titleCtrl.text, titleErrorStream);
-                            bool descErr =
-                                descValidate(descCtrl.text, descErrorStream);
-                            bool timeErr = timeValidate(
-                                timeErrorStream, startTime, endTime);
-
-                            if (!(titleErr || descErr || timeErr)) {
-                              task!.title = titleCtrl.text;
-                              task!.description = descCtrl.text;
-                              task!.date = dateTimeToString(selectedDate);
-                              task!.startTime =
-                                  timeOfDayToString(startTime, context);
-                              task!.endTime =
-                                  timeOfDayToString(endTime, context);
-
-                              handleAction();
-                              widget.updateTaskList.add(true);
-                              Navigator.of(context).pop();
-                            }
-                          },
+                          onPressed: () => handleUpdateOrCreate(),
                           child: Padding(
                             padding: const EdgeInsets.fromLTRB(
                                 50.0, 10.0, 50.0, 10.0),
@@ -289,7 +278,39 @@ class _TaskDetailsState extends State<TaskDetails> {
                             ),
                           ),
                         ),
-                      )
+                      ),
+
+                      // MARK DONE
+                      // CREATE
+                      actionTitle == "Update"
+                          ? Center(
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.green,
+                                ),
+                                onPressed: () {
+                                  databaseHelper.deleteTask(task);
+                                  widget.updateTaskList.add(true);
+                                  Navigator.of(context).pop();
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                      40.0, 10.0, 40.0, 10.0),
+                                  child: CustomText(
+                                    text: "Mark Done",
+                                    size: 15,
+                                    weight: FontWeight.w400,
+                                    color: const Color.fromARGB(
+                                        255, 238, 245, 255),
+                                  ),
+                                ),
+                              ),
+                            )
+                          : const Center(
+                              child: SizedBox(
+                                height: 30,
+                              ),
+                            ),
                     ],
                   ),
                 ),

@@ -1,20 +1,22 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../../models/task.dart';
 import '../../shared/custom_text.dart';
 import '../../utils/navigation_helper.dart';
 
 class TaskCard extends StatelessWidget {
   const TaskCard(
       {super.key,
-      required this.taskId,
-      required this.taskTitle,
-      required this.taskTime,
+      required this.task,
+      required this.taskIndex,
       required this.updateTaskList});
 
-  final int taskId;
-  final String taskTitle;
-  final String taskTime;
+  final Task task;
+  final int taskIndex; // List<Task> => IDX: 0, 1, 2....  ID: 1, 2, 4, 5....
+  String get taskTitle => task.title;
+  String get taskTime => '${task.startTime} - ${task.endTime}';
+
   final StreamController updateTaskList;
 
   @override
@@ -38,7 +40,7 @@ class TaskCard extends StatelessWidget {
           clipBehavior: Clip.hardEdge,
           child: InkWell(
             splashColor: const Color.fromARGB(255, 30, 94, 146).withAlpha(30),
-            onTap: () => navigateToTaskPage(taskId, context, updateTaskList),
+            onTap: () => navigateToTaskPage(taskIndex, context, updateTaskList),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -54,7 +56,8 @@ class TaskCard extends StatelessWidget {
                       color: const Color.fromARGB(255, 24, 59, 109),
                     ),
                     subtitle: CustomText(
-                      text: taskTime,
+                      text:
+                          'ID on database: ${task.id.toString()} | Index on UI: $taskIndex',
                       size: 12,
                       weight: FontWeight.w400,
                       color: const Color.fromARGB(255, 118, 148, 190),

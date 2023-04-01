@@ -111,20 +111,17 @@ class _HomeState extends State<Home> {
 
                   if (snapshot.hasData) {
                     for (var i = 0; i < snapshot.data!.length; i++) {
-                      Task task = snapshot.data![i];
-
                       taskCards.add(TaskCard(
-                        taskId: i,
-                        taskTitle: task.title,
-                        taskTime: '${task.startTime} - ${task.endTime}',
+                        taskIndex: i,
                         updateTaskList: updateTaskList,
+                        task: snapshot.data![i],
                       ));
                     }
                   }
 
                   return Padding(
                     padding: const EdgeInsets.all(25.0),
-                    child: ListView(  
+                    child: ListView(
                       scrollDirection: Axis.vertical,
                       children: [
                         const Progress(),
