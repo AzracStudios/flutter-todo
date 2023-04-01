@@ -6,14 +6,9 @@ import '../../shared/custom_text.dart';
 import '../../utils/navigation_helper.dart';
 
 class TaskCard extends StatelessWidget {
-  const TaskCard(
-      {super.key,
-      required this.task,
-      required this.taskIndex,
-      required this.updateTaskList});
+  const TaskCard({super.key, required this.task, required this.updateTaskList});
 
   final Task task;
-  final int taskIndex; // List<Task> => IDX: 0, 1, 2....  ID: 1, 2, 4, 5....
   String get taskTitle => task.title;
   String get taskTime => '${task.startTime} - ${task.endTime}';
 
@@ -40,7 +35,7 @@ class TaskCard extends StatelessWidget {
           clipBehavior: Clip.hardEdge,
           child: InkWell(
             splashColor: const Color.fromARGB(255, 30, 94, 146).withAlpha(30),
-            onTap: () => navigateToTaskPage(taskIndex, context, updateTaskList),
+            onTap: () => navigateToTaskPage(task.id, context, updateTaskList),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -55,12 +50,22 @@ class TaskCard extends StatelessWidget {
                       weight: FontWeight.w500,
                       color: const Color.fromARGB(255, 24, 59, 109),
                     ),
-                    subtitle: CustomText(
-                      text:
-                          'ID on database: ${task.id.toString()} | Index on UI: $taskIndex',
-                      size: 12,
-                      weight: FontWeight.w400,
-                      color: const Color.fromARGB(255, 118, 148, 190),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CustomText(
+                          text: taskTime,
+                          size: 12,
+                          weight: FontWeight.w400,
+                          color: const Color.fromARGB(255, 118, 148, 190),
+                        ),
+                        CustomText(
+                          text: task.status,
+                          size: 12,
+                          weight: FontWeight.w400,
+                          color: const Color.fromARGB(255, 118, 148, 190),
+                        )
+                      ],
                     ),
                     trailing: const Icon(Icons.arrow_forward_ios_rounded,
                         color: Color.fromARGB(255, 130, 197, 236)))

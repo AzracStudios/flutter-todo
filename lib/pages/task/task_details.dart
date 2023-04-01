@@ -29,9 +29,15 @@ class _TaskDetailsState extends State<TaskDetails> {
   TextEditingController titleCtrl = TextEditingController();
   TextEditingController descCtrl = TextEditingController();
 
-  StreamController<String?> titleErrorStream = StreamController();
-  StreamController<String?> descErrorStream = StreamController();
-  StreamController<String?> timeErrorStream = StreamController();
+  StreamController<String?> titleErrorStream =
+      StreamController<String?>.broadcast();
+  StreamController<String?> descErrorStream =
+      StreamController<String?>.broadcast();
+  StreamController<String?> timeErrorStream =
+      StreamController<String?>.broadcast();
+
+  StreamController<String?> statusStream =
+      StreamController<String?>.broadcast();
 
   String formError = "";
 
@@ -39,7 +45,8 @@ class _TaskDetailsState extends State<TaskDetails> {
   String actionTitle = '';
   String appBarTitle = '';
 
-  Task task = Task(null, '', '', '', '', '');
+  Task task = Task(null, '', '', '', '', '', '');
+  String statusVal = "Pending";
 
   void selectDate() {
     showDatePicker(
@@ -80,6 +87,7 @@ class _TaskDetailsState extends State<TaskDetails> {
       task.date = dateTimeToString(selectedDate);
       task.startTime = timeOfDayToString(startTime, context);
       task.endTime = timeOfDayToString(endTime, context);
+      task.status = statusVal;
 
       final Future<Database> dbFuture = databaseHelper.initializeDatabase();
       dbFuture.then((db) {
@@ -97,23 +105,28 @@ class _TaskDetailsState extends State<TaskDetails> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: databaseHelper.getTaskList(),
+        future: widget.id != null
+            ? databaseHelper.getTaskWithId(widget.id!)
+            : Future(
+                () => Task(null, '', '', '', '', '', 'Pending'),
+              ),
         builder: (context, snapshot) {
+          task = snapshot.hasData ? snapshot.data! : task;
           if (snapshot.connectionState == ConnectionState.done) {
-            if (widget.id != null) {
-              task = snapshot.data![widget
-                  .id!]; // List<Task> => IDX: 0, 1, 2....  ID: 1, 2, 4, 5....
-            }
-
             titleCtrl.text = task.title;
             descCtrl.text = task.description;
             selectedDate = stringToDateTime(task.date);
             startTime = stringToTimeOfDay(task.startTime);
             endTime = stringToTimeOfDay(task.endTime);
+            statusVal = task.status;
+
+            statusStream.add(task.status);
+
             if (startTime == endTime) {
               endTime =
                   TimeOfDay(hour: startTime.hour + 1, minute: startTime.minute);
             }
+
             actionTitle = widget.id != null ? "Update" : "Create";
             appBarTitle = widget.id != null ? "Update Task" : "Add Task";
 
@@ -169,6 +182,60 @@ class _TaskDetailsState extends State<TaskDetails> {
 
                       const SizedBox(height: 10),
 
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CustomText(
+                            text: "Status",
+                            size: 20,
+                            weight: FontWeight.w600,
+                            color: const Color.fromARGB(255, 24, 59, 109),
+                          ),
+                          Container(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 10.0),
+                            decoration: BoxDecoration(
+                                border: Border.all(
+                                    color: Colors.blueGrey,
+                                    width: 1,
+                                    style: BorderStyle.solid),
+                                borderRadius: BorderRadius.circular(8)),
+                            child: StreamBuilder<String?>(
+                                stream: statusStream.stream,
+                                builder: (context, snapshot) {
+                                  return DropdownButton(
+                                    value: snapshot.data ?? statusVal,
+                                    onChanged: (_) {
+                                      statusStream.add(_);
+                                      statusVal = _!;
+                                    },
+                                    isExpanded: true,
+                                    borderRadius: BorderRadius.circular(5.0),
+                                    items: <String>[
+                                      'Pending',
+                                      'In Progress',
+                                      'Done',
+                                    ].map<DropdownMenuItem<String>>(
+                                        (String value) {
+                                      return DropdownMenuItem<String>(
+                                        value: value,
+                                        child: CustomText(
+                                          text: value,
+                                          size: 15,
+                                          weight: FontWeight.w400,
+                                          color: const Color.fromARGB(
+                                              255, 24, 59, 109),
+                                        ),
+                                      );
+                                    }).toList(),
+                                  );
+                                }),
+                          )
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
                       // DATE AND TIME
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -266,7 +333,7 @@ class _TaskDetailsState extends State<TaskDetails> {
                       // CREATE
                       Center(
                         child: ElevatedButton(
-                          onPressed: () => handleUpdateOrCreate(),
+                          onPressed: handleUpdateOrCreate,
                           child: Padding(
                             padding: const EdgeInsets.fromLTRB(
                                 50.0, 10.0, 50.0, 10.0),
@@ -280,14 +347,12 @@ class _TaskDetailsState extends State<TaskDetails> {
                         ),
                       ),
 
-                      // MARK DONE
-                      // CREATE
+                      // DELETE
                       actionTitle == "Update"
                           ? Center(
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.green,
-                                ),
+                                    backgroundColor: Colors.red),
                                 onPressed: () {
                                   databaseHelper.deleteTask(task);
                                   widget.updateTaskList.add(true);
@@ -295,9 +360,9 @@ class _TaskDetailsState extends State<TaskDetails> {
                                 },
                                 child: Padding(
                                   padding: const EdgeInsets.fromLTRB(
-                                      40.0, 10.0, 40.0, 10.0),
+                                      55.0, 10.0, 55.0, 10.0),
                                   child: CustomText(
-                                    text: "Mark Done",
+                                    text: "Delete",
                                     size: 15,
                                     weight: FontWeight.w400,
                                     color: const Color.fromARGB(
@@ -306,10 +371,8 @@ class _TaskDetailsState extends State<TaskDetails> {
                                 ),
                               ),
                             )
-                          : const Center(
-                              child: SizedBox(
-                                height: 30,
-                              ),
+                          : const SizedBox(
+                              height: 20,
                             ),
                     ],
                   ),

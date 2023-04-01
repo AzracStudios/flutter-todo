@@ -15,6 +15,7 @@ class DatabaseHelper {
   String colDate = "date";
   String colStartTime = "start_time";
   String colEndTime = "end_time";
+  String colStatus = "status";
 
   DatabaseHelper._createInstance();
 
@@ -32,20 +33,25 @@ class DatabaseHelper {
     Directory dir = await getApplicationDocumentsDirectory();
     String path = "${dir.path}todo.db";
 
-    // MissingPluginException (MissingPluginException(No implementation found for method openDatabase on channel com.tekartik.sqflite))
     var todoDB = await openDatabase(path, version: 1, onCreate: _createDB);
     return todoDB;
   }
 
   void _createDB(Database db, int newVersion) async {
     await db.execute(
-        'create table $taskTable($colId integer primary key autoincrement, $colTitle text, $colDescription text, $colDate text, $colStartTime text, $colEndTime text)');
+        'create table $taskTable($colId integer primary key autoincrement, $colTitle text, $colDescription text, $colDate text, $colStartTime text, $colEndTime text, $colStatus text)');
   }
 
   Future<List<Map<String, dynamic>>> getTasks() async {
     Database db = await database;
     var res = await db.query(taskTable);
     return res;
+  }
+
+  Future<Task> getTaskWithId(int id) async {
+    Database db = await database;
+    var res = await db.query(taskTable, where: '$colId=?', whereArgs: [id]);
+    return Task.fromMapObject(res[0]);
   }
 
   Future<int> insertTask(Task task) async {

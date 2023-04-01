@@ -112,7 +112,6 @@ class _HomeState extends State<Home> {
                   if (snapshot.hasData) {
                     for (var i = 0; i < snapshot.data!.length; i++) {
                       taskCards.add(TaskCard(
-                        taskIndex: i,
                         updateTaskList: updateTaskList,
                         task: snapshot.data![i],
                       ));
