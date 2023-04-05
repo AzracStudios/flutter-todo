@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../utils/type_conv_helper.dart';
@@ -13,7 +15,7 @@ class TimeSelect extends StatefulWidget {
 
   final bool timeError;
   final Function selectTime;
-  final TimeOfDay time;
+  final StreamController<TimeOfDay> time;
   final String title;
 
   @override
@@ -47,18 +49,23 @@ class _TimeSelectState extends State<TimeSelect> {
             clipBehavior: Clip.hardEdge,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(2, 5, 2, 5),
-              child: ListTile(
-                hoverColor: Colors.white,
-                focusColor: Colors.white,
-                onTap: () => widget.selectTime(),
-                title: CustomText(
-                  text: timeOfDayToString(widget.time, context),
-                  size: 15,
-                  weight: FontWeight.w500,
-                  color: const Color.fromARGB(255, 24, 59, 109),
-                ),
-                trailing: const Icon(Icons.calendar_month_rounded),
-              ),
+              child: StreamBuilder<TimeOfDay>(
+                  stream: widget.time.stream,
+                  initialData: TimeOfDay.now(),
+                  builder: (context, snapshot) {
+                    return ListTile(
+                      hoverColor: Colors.white,
+                      focusColor: Colors.white,
+                      onTap: () => widget.selectTime(),
+                      title: CustomText(
+                        text: timeOfDayToString(snapshot.data!, context),
+                        size: 15,
+                        weight: FontWeight.w500,
+                        color: const Color.fromARGB(255, 24, 59, 109),
+                      ),
+                      trailing: const Icon(Icons.calendar_month_rounded),
+                    );
+                  }),
             ),
           ),
         ),

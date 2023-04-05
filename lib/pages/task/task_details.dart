@@ -7,6 +7,7 @@ import 'package:todo_app/shared/validated_field.dart';
 import 'package:todo_app/shared/custom_text.dart';
 import 'package:todo_app/utils/database_helper.dart';
 
+import '../../models/task_status.dart';
 import '../../utils/type_conv_helper.dart';
 import 'error_validation.dart';
 
@@ -21,6 +22,12 @@ class TaskDetails extends StatefulWidget {
   State<TaskDetails> createState() => _TaskDetailsState();
 }
 
+class TaskWithStatus {
+  TaskWithStatus(this.task, this.taskStatus);
+  final Task task;
+  final List<TaskStatus> taskStatus;
+}
+
 class _TaskDetailsState extends State<TaskDetails> {
   DateTime selectedDate = DateTime.now();
   TimeOfDay startTime = TimeOfDay.now();
@@ -29,15 +36,16 @@ class _TaskDetailsState extends State<TaskDetails> {
   TextEditingController titleCtrl = TextEditingController();
   TextEditingController descCtrl = TextEditingController();
 
-  StreamController<String?> titleErrorStream =
-      StreamController<String?>.broadcast();
-  StreamController<String?> descErrorStream =
-      StreamController<String?>.broadcast();
-  StreamController<String?> timeErrorStream =
-      StreamController<String?>.broadcast();
+  StreamController<String?> titleErrorStream = StreamController();
+  StreamController<String?> descErrorStream = StreamController();
+  StreamController<String?> timeErrorStream = StreamController();
 
-  StreamController<String?> statusStream =
-      StreamController<String?>.broadcast();
+  StreamController<int> statusStream = StreamController();
+  StreamController<DateTime> dateValueStream = StreamController();
+  StreamController<TimeOfDay> startTimeValueStream = StreamController();
+  StreamController<TimeOfDay> endTimeValueStream = StreamController();
+
+  List<Map<String, dynamic>> statusList = [];
 
   String formError = "";
 
@@ -45,8 +53,8 @@ class _TaskDetailsState extends State<TaskDetails> {
   String actionTitle = '';
   String appBarTitle = '';
 
-  Task task = Task(null, '', '', '', '', '', '');
-  String statusVal = "Pending";
+  Task task = Task(null, '', '', '', '', '', 1);
+  int statusVal = 0;
 
   void selectDate() {
     showDatePicker(
@@ -55,9 +63,8 @@ class _TaskDetailsState extends State<TaskDetails> {
       firstDate: DateTime(2015, 8),
       lastDate: DateTime(2101),
     ).then((value) {
-      setState(() {
-        selectedDate = value!;
-      });
+      selectedDate = value!;
+      dateValueStream.add(selectedDate);
     });
   }
 
@@ -66,13 +73,13 @@ class _TaskDetailsState extends State<TaskDetails> {
       context: context,
       initialTime: isStart ? startTime : endTime,
     ).then((value) {
-      setState(() {
-        if (isStart) {
-          startTime = value!;
-        } else {
-          endTime = value!;
-        }
-      });
+      if (isStart) {
+        startTime = value!;
+        startTimeValueStream.add(startTime);
+      } else {
+        endTime = value!;
+        endTimeValueStream.add(endTime);
+      }
     });
   }
 
@@ -87,7 +94,7 @@ class _TaskDetailsState extends State<TaskDetails> {
       task.date = dateTimeToString(selectedDate);
       task.startTime = timeOfDayToString(startTime, context);
       task.endTime = timeOfDayToString(endTime, context);
-      task.status = statusVal;
+      task.statusId = statusVal;
 
       final Future<Database> dbFuture = databaseHelper.initializeDatabase();
       dbFuture.then((db) {
@@ -102,25 +109,38 @@ class _TaskDetailsState extends State<TaskDetails> {
     }
   }
 
+  Future<TaskWithStatus> fetchData() async {
+    var a = TaskWithStatus(await databaseHelper.getTaskWithId(widget.id!),
+        await databaseHelper.getTaskStatusList());
+    return a;
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
         future: widget.id != null
-            ? databaseHelper.getTaskWithId(widget.id!)
+            ? fetchData()
             : Future(
-                () => Task(null, '', '', '', '', '', 'Pending'),
+                () async {
+                  return TaskWithStatus(Task(null, '', '', '', '', '', 1),
+                      await databaseHelper.getTaskStatusList());
+                },
               ),
         builder: (context, snapshot) {
-          task = snapshot.hasData ? snapshot.data! : task;
           if (snapshot.connectionState == ConnectionState.done) {
+            task = snapshot.data!.task;
+            statusVal = task.statusId;
             titleCtrl.text = task.title;
             descCtrl.text = task.description;
             selectedDate = stringToDateTime(task.date);
             startTime = stringToTimeOfDay(task.startTime);
             endTime = stringToTimeOfDay(task.endTime);
-            statusVal = task.status;
 
-            statusStream.add(task.status);
+            TaskWithStatus obj = snapshot.data!;
+            task = snapshot.hasData ? obj.task : task;
+            for (var status in obj.taskStatus) {
+              statusList.add({"id": status.id, "title": status.title});
+            }
 
             if (startTime == endTime) {
               endTime =
@@ -129,6 +149,27 @@ class _TaskDetailsState extends State<TaskDetails> {
 
             actionTitle = widget.id != null ? "Update" : "Create";
             appBarTitle = widget.id != null ? "Update Task" : "Add Task";
+            List<DropdownMenuItem<int>> dropDownItems = [];
+
+            for (var item in statusList) {
+              dropDownItems.add(DropdownMenuItem<int>(
+                value: item["id"],
+                child: CustomText(
+                  text: item["title"],
+                  size: 15,
+                  weight: FontWeight.w400,
+                  color: const Color.fromARGB(255, 24, 59, 109),
+                ),
+              ));
+            }
+
+            Map<String, dynamic> getItemByID(int id) {
+              for (var item in statusList) {
+                if (item["id"] == id) return item;
+              }
+
+              return statusList[0];
+            }
 
             return Scaffold(
               appBar: AppBar(
@@ -200,34 +241,19 @@ class _TaskDetailsState extends State<TaskDetails> {
                                     width: 1,
                                     style: BorderStyle.solid),
                                 borderRadius: BorderRadius.circular(8)),
-                            child: StreamBuilder<String?>(
+                            child: StreamBuilder<int?>(
                                 stream: statusStream.stream,
                                 builder: (context, snapshot) {
-                                  return DropdownButton(
-                                    value: snapshot.data ?? statusVal,
+                                  return DropdownButton<int>(
                                     onChanged: (_) {
-                                      statusStream.add(_);
-                                      statusVal = _!;
+                                      statusVal = _ as int;
+                                      statusStream.add(statusVal);
                                     },
                                     isExpanded: true,
                                     borderRadius: BorderRadius.circular(5.0),
-                                    items: <String>[
-                                      'Pending',
-                                      'In Progress',
-                                      'Done',
-                                    ].map<DropdownMenuItem<String>>(
-                                        (String value) {
-                                      return DropdownMenuItem<String>(
-                                        value: value,
-                                        child: CustomText(
-                                          text: value,
-                                          size: 15,
-                                          weight: FontWeight.w400,
-                                          color: const Color.fromARGB(
-                                              255, 24, 59, 109),
-                                        ),
-                                      );
-                                    }).toList(),
+                                    items: dropDownItems,
+                                    value: getItemByID(
+                                        snapshot.data ?? statusVal)["id"],
                                   );
                                 }),
                           )
@@ -236,6 +262,7 @@ class _TaskDetailsState extends State<TaskDetails> {
                       const SizedBox(
                         height: 10,
                       ),
+
                       // DATE AND TIME
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -262,12 +289,18 @@ class _TaskDetailsState extends State<TaskDetails> {
                                 hoverColor: Colors.white,
                                 focusColor: Colors.white,
                                 onTap: () => selectDate(),
-                                title: CustomText(
-                                  text: dateTimeToString(selectedDate),
-                                  size: 16,
-                                  weight: FontWeight.w500,
-                                  color: const Color.fromARGB(255, 24, 59, 109),
-                                ),
+                                title: StreamBuilder<DateTime>(
+                                    stream: dateValueStream.stream,
+                                    initialData: selectedDate,
+                                    builder: (context, snapshot) {
+                                      return CustomText(
+                                        text: dateTimeToString(snapshot.data!),
+                                        size: 16,
+                                        weight: FontWeight.w500,
+                                        color: const Color.fromARGB(
+                                            255, 24, 59, 109),
+                                      );
+                                    }),
                                 trailing:
                                     const Icon(Icons.calendar_month_rounded),
                               ),
@@ -289,12 +322,12 @@ class _TaskDetailsState extends State<TaskDetails> {
                                           title: "Start Time",
                                           timeError: timeError,
                                           selectTime: () => selectTime(true),
-                                          time: startTime),
+                                          time: startTimeValueStream),
                                       TimeSelect(
                                           title: "End Time",
                                           timeError: timeError,
                                           selectTime: () => selectTime(false),
-                                          time: endTime),
+                                          time: endTimeValueStream),
                                     ],
                                   ),
                                 );
@@ -380,7 +413,14 @@ class _TaskDetailsState extends State<TaskDetails> {
               ),
             );
           } else {
-            return const CircularProgressIndicator();
+            return Center(
+              child: Container(
+                width: double.infinity,
+                height: double.infinity,
+                decoration: const BoxDecoration(color: Colors.white),
+                child: const CircularProgressIndicator(),
+              ),
+            );
           }
         });
   }

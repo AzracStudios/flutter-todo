@@ -45,7 +45,7 @@ class Landing extends StatelessWidget {
               ElevatedButton(
                 onPressed: () => {
                   Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (context) => Home()))
+                      MaterialPageRoute(builder: (context) => const Home()))
                 },
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(30.0, 5.0, 30.0, 5.0),

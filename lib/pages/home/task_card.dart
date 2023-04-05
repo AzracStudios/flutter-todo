@@ -6,9 +6,14 @@ import '../../shared/custom_text.dart';
 import '../../utils/navigation_helper.dart';
 
 class TaskCard extends StatelessWidget {
-  const TaskCard({super.key, required this.task, required this.updateTaskList});
+  const TaskCard(
+      {super.key,
+      required this.task,
+      required this.updateTaskList,
+      required this.status});
 
   final Task task;
+  final String status;
   String get taskTitle => task.title;
   String get taskTime => '${task.startTime} - ${task.endTime}';
 
@@ -60,7 +65,7 @@ class TaskCard extends StatelessWidget {
                           color: const Color.fromARGB(255, 118, 148, 190),
                         ),
                         CustomText(
-                          text: task.status,
+                          text: status,
                           size: 12,
                           weight: FontWeight.w400,
                           color: const Color.fromARGB(255, 118, 148, 190),

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqlite_api.dart';
 import 'package:todo_app/models/task.dart';
+import 'package:todo_app/models/task_status.dart';
 import 'package:todo_app/pages/home/task_card.dart';
 import 'package:todo_app/shared/progress.dart';
 import 'package:todo_app/utils/database_helper.dart';
@@ -19,6 +20,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   StreamController<List<Task>?> taskStream = StreamController();
+  StreamController<List<TaskCard>?> taskCardStream = StreamController();
   StreamController<bool> updateTaskList = StreamController();
 
   DatabaseHelper databaseHelper = DatabaseHelper();
@@ -29,6 +31,7 @@ class _HomeState extends State<Home> {
     final Future<Database> dbFuture = databaseHelper.initializeDatabase();
     dbFuture.then((db) {
       Future<List<Task>> taskListFuture = databaseHelper.getTaskList();
+
       taskListFuture.then((taskList) {
         taskStream.add(taskList);
       });
@@ -111,33 +114,45 @@ class _HomeState extends State<Home> {
 
                   if (snapshot.hasData) {
                     for (var i = 0; i < snapshot.data!.length; i++) {
-                      taskCards.add(TaskCard(
-                        updateTaskList: updateTaskList,
-                        task: snapshot.data![i],
-                      ));
+                      Future<TaskStatus> status = databaseHelper
+                          .getTaskStatusWithId(snapshot.data![i].statusId);
+                      status.then((s) {
+                        taskCards.add(TaskCard(
+                          updateTaskList: updateTaskList,
+                          task: snapshot.data![i],
+                          status: s.title,
+                        ));
+
+                        taskCardStream.add(taskCards);
+                      });
                     }
                   }
 
-                  return Padding(
-                    padding: const EdgeInsets.all(25.0),
-                    child: ListView(
-                      scrollDirection: Axis.vertical,
-                      children: [
-                        const Progress(),
-                        const SizedBox(height: 20),
-                        taskCards.isEmpty
-                            ? CustomText(
-                                text: "No Tasks!",
-                                size: 25,
-                                weight: FontWeight.bold,
-                                color: const Color.fromARGB(255, 24, 59, 109),
-                                center: true,
-                              )
-                            : const SizedBox(height: 1),
-                        ...taskCards
-                      ],
-                    ),
-                  );
+                  return StreamBuilder<List<TaskCard>?>(
+                      stream: taskCardStream.stream,
+                      builder: (context, snapshot) {
+                        return Padding(
+                          padding: const EdgeInsets.all(25.0),
+                          child: ListView(
+                            scrollDirection: Axis.vertical,
+                            children: [
+                              const Progress(),
+                              const SizedBox(height: 20),
+                              !snapshot.hasData
+                                  ? CustomText(
+                                      text: "No Tasks!",
+                                      size: 25,
+                                      weight: FontWeight.bold,
+                                      color: const Color.fromARGB(
+                                          255, 24, 59, 109),
+                                      center: true,
+                                    )
+                                  : const SizedBox(height: 1),
+                              ...taskCards
+                            ],
+                          ),
+                        );
+                      });
                 }),
             floatingActionButton: FloatingActionButton(
               onPressed: () =>
