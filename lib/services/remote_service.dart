@@ -6,17 +6,17 @@ import "package:http/http.dart" as http;
 
 import "../model/task_status.dart";
 
-class RemoteService {
-  var client = http.Client();
-  var baseUrl = dotenv.env["API_URL"];
-  var headers = {
+abstract class RemoteService {
+  static var client = http.Client();
+  static var baseUrl = dotenv.env["API_URL"];
+  static var headers = {
     "connection": "close",
     "content-type": "application/json; charset=utf-8",
     "server": "Kestrel",
     "transfer-encoding": "chunked"
   };
 
-  Future<List<Task>?> getTasks() async {
+  static Future<List<Task>?> getTasks() async {
     var uri = Uri.parse("$baseUrl/GetAll");
     var response = await client.get(uri);
     if (response.statusCode == 200) {
@@ -26,7 +26,7 @@ class RemoteService {
     return null;
   }
 
-  Future<Task?> getTaskById(int id) async {
+  static Future<Task?> getTaskById(int id) async {
     var uri = Uri.parse("$baseUrl/Get/$id");
     var response = await client.get(uri, headers: headers);
     if (response.statusCode == 200) {
@@ -35,7 +35,7 @@ class RemoteService {
     return null;
   }
 
-  Future<List<TaskStatus>?> getStatus() async {
+  static Future<List<TaskStatus>?> getStatus() async {
     var uri = Uri.parse("$baseUrl/GetStatus");
     var response = await client.get(uri, headers: headers);
     if (response.statusCode == 200) {
@@ -45,21 +45,21 @@ class RemoteService {
     return null;
   }
 
-  Future<int> postTask(dynamic task) async {
+  static Future<int> postTask(dynamic task) async {
     var uri = Uri.parse("$baseUrl/Add");
     var response =
         await client.post(uri, body: json.encode(task), headers: headers);
     return response.statusCode;
   }
 
-  Future<int> putTask(dynamic task) async {
+  static Future<int> putTask(dynamic task) async {
     var uri = Uri.parse("$baseUrl/Update");
     var response =
         await client.put(uri, body: json.encode(task), headers: headers);
     return response.statusCode;
   }
 
-  Future<int> deleteTask(int id) async {
+  static Future<int> deleteTask(int id) async {
     var uri = Uri.parse("$baseUrl/Delete/$id");
     var response = await client.delete(uri, headers: headers);
     return response.statusCode;

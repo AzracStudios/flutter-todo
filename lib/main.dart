@@ -9,6 +9,7 @@ Future main() async {
 
 class TodoApp extends StatelessWidget {
   const TodoApp({super.key});
+  static String userVarient = "paid";
 
   @override
   Widget build(BuildContext context) {

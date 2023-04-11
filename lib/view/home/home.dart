@@ -29,8 +29,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   getData() async {
-    tasks = await RemoteService().getTasks();
-    status = await RemoteService().getStatus();
+    tasks = await RemoteService.getTasks();
+    status = await RemoteService.getStatus();
 
     if (tasks != null && status != null) {
       for (var task in tasks!) {

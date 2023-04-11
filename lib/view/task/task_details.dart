@@ -47,7 +47,7 @@ class _TaskDetailsState extends State<TaskDetails> {
   String appBarTitle = '';
 
   void handleDelete() {
-    RemoteService().deleteTask(widget.task!.id!);
+    RemoteService.deleteTask(widget.task!.id!);
     Navigator.of(context)
         .pushReplacement(MaterialPageRoute(
           builder: (context) => const HomePage(),
@@ -75,9 +75,9 @@ class _TaskDetailsState extends State<TaskDetails> {
       );
 
       if (actionTitle == "Update") {
-        RemoteService().putTask(widget.task!.toMap());
+        RemoteService.putTask(widget.task!.toMap());
       } else {
-        RemoteService().postTask(widget.task!.toMap());
+        RemoteService.postTask(widget.task!.toMap());
       }
       Navigator.of(context)
           .pushReplacement(MaterialPageRoute(
@@ -125,7 +125,7 @@ class _TaskDetailsState extends State<TaskDetails> {
               ),
               AppTheme.verticalSpacer,
               FutureBuilder(
-                future: RemoteService().getStatus(),
+                future: RemoteService.getStatus(),
                 initialData: const <TaskStatus>[],
                 builder: (context, snapshot) {
                   return Dropdown(
