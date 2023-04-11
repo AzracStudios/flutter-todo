@@ -3,15 +3,16 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../utils/type_conv_helper.dart';
-import 'custom_text.dart';
+import 'text.dart';
 
 class TimeSelect extends StatefulWidget {
-  const TimeSelect(
-      {super.key,
-      required this.timeError,
-      required this.selectTime,
-      required this.time,
-      required this.title});
+  const TimeSelect({
+    super.key,
+    required this.timeError,
+    required this.selectTime,
+    required this.time,
+    required this.title,
+  });
 
   final bool timeError;
   final Function selectTime;
@@ -56,7 +57,7 @@ class _TimeSelectState extends State<TimeSelect> {
                     return ListTile(
                       hoverColor: Colors.white,
                       focusColor: Colors.white,
-                      onTap: () => widget.selectTime(),
+                      onTap: () => widget.selectTime(snapshot.data),
                       title: CustomText(
                         text: timeOfDayToString(snapshot.data!, context),
                         size: 15,
