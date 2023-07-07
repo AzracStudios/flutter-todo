@@ -1,4 +1,5 @@
-CLASS DataHandler
+ABSTRACT CLASS DataHandler
     GET | GET_ALL | POST | PUT | DELELTE | GET_TASK_STATUS
        IF pro: INITIATE_TRANSACTION WITH aspdotnet_api
        IF NOT pro: INITIATE_TRANSACTION WITH sqlite
+    
